@@ -1,0 +1,77 @@
+services:
+  image-base:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: synapes/image-base:latest
+
+  chainlit:
+    image: synapes/image-base:latest
+    container_name: chainlit
+    restart: no
+    environment:
+      PYTHONUNBUFFERED: 1
+      CHAINLIT_AUTH_SECRET:
+    volumes:
+      - .:/home/app
+    networks:
+      - donjuan_ai
+    ports:
+      - "8000:8000"
+    command: "chainlit run app.py --port 8000 --host 0.0.0.0"
+    # labels:
+    #   - "traefik.enable=true"
+    #   - "traefik.http.routers.chainlit.rule=Host(`sea-uat-sol7.llm-synapes.info`)"
+    #   - "traefik.http.routers.chainlit.entrypoints=websecure"
+    #   # - "traefik.http.routers.chainlit.tls=true"
+    #   - "traefik.http.routers.chainlit.tls.certresolver=myresolver"
+    #   - "traefik.http.services.chainlit.loadbalancer.server.port=8000"
+
+  # mongodb:
+  #   image: mongo:latest
+  #   container_name: mongodb
+  #   restart: unless-stopped
+  #   environment:
+  #     MONGO_INITDB_ROOT_USERNAME: root
+  #     MONGO_INITDB_ROOT_PASSWORD: toor
+  #   volumes:
+  #     - ../mongo_data:/data/db
+  #   networks:
+  #     - enterprise_ai
+
+  # traefik:
+  #   image: "traefik:v3.3"
+  #   container_name: "traefik"
+  #   restart: unless-stopped
+  #   command:
+  #     # - "--log.level=DEBUG"
+  #     - "--log.level=INFO"
+  #     - "--api.insecure=true"
+  #     - "--providers.docker=true"
+  #     - "--providers.docker.exposedbydefault=false"
+  #     # - "--entrypoints.https.forwardedHeaders.trustedIPs=$CLOUDFLARE_IPS,$LOCAL_IPS"
+  #     - "--entryPoints.traefik.address=:8080"
+  #     - "--entryPoints.web.address=:80"
+  #     - "--entryPoints.web.http.redirections.entryPoint.to=websecure"
+  #     - "--entryPoints.web.http.redirections.entryPoint.scheme=https"
+  #     - "--entryPoints.websecure.address=:443"
+  #     # - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+  #     - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+  #     - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+  #     # - "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+  #     - "--certificatesresolvers.myresolver.acme.email=selen.synapes@gmail.com"
+  #     - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+  #   ports:
+  #     - "80:80" # HTTP
+  #     - "443:443" # HTTPS
+  #     - "8080:8080" # Traefik dashboard
+  #   volumes:
+  #     - "./letsencrypt:/letsencrypt"
+  #     - "/var/run/docker.sock:/var/run/docker.sock:ro"
+  #   networks:
+  #     - enterprise_ai
+
+networks:
+  donjuan_ai:
+    name: "donjuan_ai"
+    driver: bridge
